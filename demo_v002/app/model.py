@@ -4,9 +4,9 @@ import os
 import time
 
 class VideoDetector:
-    def __init__(self):
+    def __init__(self, model_name='yolo11n.pt'):
         # YOLOv8 모델 로드
-        self.model = YOLO('yolo11n.pt')
+        self.model = YOLO(model_name)
 
     def process_video(self, input_path, output_path):
         try:
@@ -53,3 +53,11 @@ class VideoDetector:
 
 # 전역 detector 인스턴스 생성
 detector = VideoDetector()
+
+
+if __name__ == "__main__":
+    input_path = "input.mp4"
+    output_path = "output.mp4"
+    model_name = 'yolo11n.pt' # yolo model names
+    
+    detector.process_video(input_path, output_path)
