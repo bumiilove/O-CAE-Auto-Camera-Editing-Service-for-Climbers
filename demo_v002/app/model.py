@@ -52,7 +52,7 @@ class VideoDetector:
             return False, 0, 0
 
 # 전역 detector 인스턴스 생성
-detector = VideoDetector()
+detector = VideoDetector('yolov8n.pt')
 
 
 if __name__ == "__main__":
