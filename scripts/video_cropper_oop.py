@@ -11,7 +11,7 @@ import argparse
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import logging
-from profiler import Profiler
+# from profiler import Profiler
 
 @dataclass
 class CropperConfig:
@@ -53,9 +53,10 @@ class VideoCropper:
         self.model.to(self.device)
         self.detector = ObjectDetector(self.model, self.config)
         
-    def process_video(self, input_path: str, output_path: str):
+    def process_video(self, input_path: str, output_path: str) -> bool:
         self.processor = VideoProcessor(input_path, output_path, self.config)
         self.processor.process_video(self.detector)
+        return True
 
 class ObjectDetector:
     def __init__(self, model: YOLO, config: CropperConfig):
@@ -134,7 +135,8 @@ class VideoProcessor:
         self.frame_width = 0
         self.frame_height = 0
         self.fps = 0
-        self.profiler = Profiler()
+        # self.profiler = Profiler()
+        
         
     def _init_video_capture(self):
         self.cap = cv2.VideoCapture(self.input_path)
@@ -173,7 +175,6 @@ class VideoProcessor:
         
         return cv2.cvtColor(blank_frame, cv2.COLOR_RGB2BGR)
     
-    @Profiler.profile_function
     def process_video(self, detector: ObjectDetector):
         self._init_video_capture()
         logging.info(f"Processing video: {self.input_path}")
@@ -183,7 +184,7 @@ class VideoProcessor:
         frame_count = 0
         start_time = time.time()
         
-        self.profiler.start()
+        # self.profiler.start()
         # First pass: Detect person and collect center points
         while self.cap.isOpened():
             ret, frame = self.cap.read()
@@ -192,7 +193,7 @@ class VideoProcessor:
                 
             if frame_count % self.config.sampling_rate_default == 0:
                 center_x, center_y = detector.detect_person(frame, pre_center_x, pre_center_y)
-                self.profiler.log_memory_usage(f"After detection frame {frame_count}")
+                # self.profiler.log_memory_usage(f"After detection frame {frame_count}")
                 
             if center_x == -1 or center_y == -1:
                 center_x, center_y = self.frame_width // 2, self.frame_height // 2
@@ -208,13 +209,13 @@ class VideoProcessor:
             
         self.cap.release()
         
-        first_pass_metrics = self.profiler.stop()
+        # first_pass_metrics = self.profiler.stop()
         logging.info("\nFirst pass metrics:")
-        logging.info(f"Time taken: {first_pass_metrics['execution_time']:.2f} seconds")
-        logging.info(f"Memory used: {first_pass_metrics['memory_used']:.2f} MB")
-        logging.info(f"Peak memory: {first_pass_metrics['peak_memory']:.2f} MB")
+        # logging.info(f"Time taken: {first_pass_metrics['execution_time']:.2f} seconds")
+        # logging.info(f"Memory used: {first_pass_metrics['memory_used']:.2f} MB")
+        # logging.info(f"Peak memory: {first_pass_metrics['peak_memory']:.2f} MB")
         
-        self.profiler.start()
+        # self.profiler.start()
         
         # Smooth trajectories
         smoothed_x = TrajectorySmoothing.centered_moving_average(self.center_x_list)
@@ -250,27 +251,29 @@ class VideoProcessor:
             
             if frame_count % 100 == 0:
                 logging.info(f"Cropping frame: {frame_count}")
-                self.profiler.log_memory_usage(f"After cropping frame {frame_count}")
+                # self.profiler.log_memory_usage(f"After cropping frame {frame_count}")
                 
             frame_count += 1
             
         self.cap.release()
         
-        second_pass_metrics = self.profiler.stop()
+        # second_pass_metrics = self.profiler.stop()
         logging.info("\nSecond pass metrics:")
-        logging.info(f"Time taken: {second_pass_metrics['execution_time']:.2f} seconds")
-        logging.info(f"Memory used: {second_pass_metrics['memory_used']:.2f} MB")
-        logging.info(f"Peak memory: {second_pass_metrics['peak_memory']:.2f} MB")
+        # logging.info(f"Time taken: {second_pass_metrics['execution_time']:.2f} seconds")
+        # logging.info(f"Memory used: {second_pass_metrics['memory_used']:.2f} MB")
+        # logging.info(f"Peak memory: {second_pass_metrics['peak_memory']:.2f} MB")
         
         # Save video
-        self.profiler.start()
+        # self.profiler.start()
         self._save_video()
-        save_metrics = self.profiler.stop()
+
+        return True
+        # save_metrics = self.profiler.stop()
         
         logging.info("\nVideo saving metrics:")
-        logging.info(f"Time taken: {save_metrics['execution_time']:.2f} seconds")
-        logging.info(f"Memory used: {save_metrics['memory_used']:.2f} MB")
-        logging.info(f"Peak memory: {save_metrics['peak_memory']:.2f} MB")
+        # logging.info(f"Time taken: {save_metrics['execution_time']:.2f} seconds")
+        # logging.info(f"Memory used: {save_metrics['memory_used']:.2f} MB")
+        # logging.info(f"Peak memory: {save_metrics['peak_memory']:.2f} MB")
         
     def _save_video(self):
         clip = ImageSequenceClip(self.frames, fps=self.fps)
@@ -289,6 +292,7 @@ class VideoProcessor:
             verbose=False
         )
         logging.info(f"Video saved to: {self.output_path}")
+        
 
 def main():
     parser = argparse.ArgumentParser()
@@ -312,6 +316,14 @@ def main():
     
     # Process video
     cropper.process_video(args.input, args.output)
+
+# Initialize configuration
+config = CropperConfig(model_version=8)
+
+# Create and setup video cropper
+cropper = VideoCropper(config)
+cropper.load_model()
+
 
 if __name__ == '__main__':
     main() 
