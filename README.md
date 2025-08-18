@@ -44,7 +44,7 @@ CruxCut AI는 등반 영상에서 여러분들에게 포커스된 영상을 자�
 :exclamation: CrxuCut AI가 클라이밍 영상에서 어떻게 여러분을 포착하는지 직접 확인하세요 :exclamation:
 </p>
 
-[![CruxCut tracks your move](https://img.youtube.com/vi/FbD5ZKpMjNA/maxresdefault.jpg)](https://www.youtube.com/shorts/FbD5ZKpMjNA) 
+[![CruxCut tracks your move](https://img.youtube.com/vi/FbD5ZKpMjNA/maxresdefault.jpg)](https://www.youtube.com/watch?v=FbD5ZKpMjNA)
 
  # Demo
 CruxCut은 업로드, 다운로드 두 기능만으로 효율적인 영상 자동 편집 기능을 제공합니다. 클라이밍 중 수시로 영상을 업로드하고 편집해보세요.
